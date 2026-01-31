@@ -1,0 +1,12 @@
+model:
+  type: linear_regression
+
+split:
+  test_size: 0.3
+  random_state: 42
+
+metric:
+  primary: rmse
+
+promotion:
+  strategy: lower_is_better

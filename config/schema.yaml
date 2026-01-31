@@ -1,0 +1,30 @@
+target: price
+
+features:
+  - size
+  - bedrooms
+  - age
+  - location_score
+  - income_index
+
+dtypes:
+  size: float
+  bedrooms: int
+  age: float
+  location_score: float
+  income_index: float
+  price: float
+
+constraints:
+  size:
+    min: 0
+  bedrooms:
+    min: 0
+  age:
+    min: 0
+  location_score:
+    min: 0
+  income_index:
+    min: 0
+  price:
+    min: 0

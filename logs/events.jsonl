@@ -1,0 +1,9 @@
+{"timestamp": "2026-01-31 11:33:13", "event": "PIPELINE_STARTED", "data": {}}
+{"timestamp": "2026-01-31 11:33:13", "event": "DATA_INGESTED", "data": {"rows_pulled": 100, "pointer_before": 0, "pointer_after": 100}}
+{"timestamp": "2026-01-31 11:33:13", "event": "VALIDATION_PASSED", "data": {"rows_validated": 100}}
+{"timestamp": "2026-01-31 11:33:13", "event": "PREPROCESS_COMPLETED", "data": {"rows_processed": 100}}
+{"timestamp": "2026-01-31 11:33:13", "event": "TRAINING_COMPLETED", "data": {"train_size": 70, "test_size": 30}}
+{"timestamp": "2026-01-31 11:33:13", "event": "EVALUATION_COMPLETED", "data": {"rmse": 23686.92690364374}}
+{"timestamp": "2026-01-31 11:33:13", "event": "EXPERIMENT_REGISTERED", "data": {"run": "run_20260131_113313", "metrics": {"rmse": 23686.92690364374}}}
+{"timestamp": "2026-01-31 11:33:13", "event": "PROMOTION_REJECTED", "data": {"new_rmse": 23686.92690364374, "current_rmse": 6128.567117749714}}
+{"timestamp": "2026-01-31 11:33:13", "event": "PIPELINE_COMPLETED", "data": {"promoted": false}}

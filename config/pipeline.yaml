@@ -1,0 +1,4 @@
+batch_size: 100
+micro_batch_size: 100
+schedule: hourly
+clear_buffer_on_promotion: true
