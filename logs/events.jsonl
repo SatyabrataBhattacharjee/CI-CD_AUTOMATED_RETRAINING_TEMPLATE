@@ -25,3 +25,12 @@
 {"timestamp": "2026-01-31 13:05:27", "event": "EXPERIMENT_REGISTERED", "data": {"run": "run_20260131_130527", "metrics": {"rmse": 20816.12612525457}}}
 {"timestamp": "2026-01-31 13:05:27", "event": "PROMOTION_REJECTED", "data": {"new_rmse": 20816.12612525457, "current_rmse": 6128.567117749714}}
 {"timestamp": "2026-01-31 13:05:27", "event": "PIPELINE_COMPLETED", "data": {"promoted": false}}
+{"timestamp": "2026-01-31 18:44:06", "event": "PIPELINE_STARTED", "data": {}}
+{"timestamp": "2026-01-31 18:44:06", "event": "DATA_INGESTED", "data": {"rows_pulled": 100, "pointer_before": 300, "pointer_after": 400}}
+{"timestamp": "2026-01-31 18:44:06", "event": "VALIDATION_PASSED", "data": {"rows_validated": 400}}
+{"timestamp": "2026-01-31 18:44:06", "event": "PREPROCESS_COMPLETED", "data": {"rows_processed": 400}}
+{"timestamp": "2026-01-31 18:44:06", "event": "TRAINING_COMPLETED", "data": {"train_size": 280, "test_size": 120}}
+{"timestamp": "2026-01-31 18:44:06", "event": "EVALUATION_COMPLETED", "data": {"rmse": 18975.29955026046}}
+{"timestamp": "2026-01-31 18:44:06", "event": "EXPERIMENT_REGISTERED", "data": {"run": "run_20260131_184406", "metrics": {"rmse": 18975.29955026046}}}
+{"timestamp": "2026-01-31 18:44:06", "event": "PROMOTION_REJECTED", "data": {"new_rmse": 18975.29955026046, "current_rmse": 6128.567117749714}}
+{"timestamp": "2026-01-31 18:44:06", "event": "PIPELINE_COMPLETED", "data": {"promoted": false}}
