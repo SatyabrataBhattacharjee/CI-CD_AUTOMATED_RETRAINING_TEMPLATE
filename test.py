@@ -26,6 +26,7 @@ from src.registry.versioning import register_experiment
 
 run_path = register_experiment(model, metrics)
 print("Run path:", run_path)
+
 from src.registry.promotion import promote_model
 
 promoted = promote_model(run_path, metrics)
