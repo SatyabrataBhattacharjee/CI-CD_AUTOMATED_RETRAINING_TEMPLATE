@@ -2,26 +2,18 @@ import yaml
 from pathlib import Path
 
 from src.ingestion.pull_batch import pull_batch
-from src.validation.sanity_check import validate_buffer
+from src.validation.sanity_check import validate_df
 from src.preprocessing.transform import preprocess
 from src.training.train import train_model
 from src.training.evaluate import evaluate_model
 from src.registry.versioning import register_experiment
 from src.registry.promotion import promote_model
 from src.logging.event_logger import log_message, log_event
+from src.ingestion.init_db import init_database
 
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 CONFIG_DIR = BASE_DIR / "config"
-DATA_DIR = BASE_DIR / "data"
-BUFFER_PATH = DATA_DIR / "buffer.csv"
-
-
-def clear_buffer():
-    if BUFFER_PATH.exists():
-        BUFFER_PATH.unlink()
-        log_message("Buffer cleared after promotion.")
-        log_event("BUFFER_CLEARED", {})
 
 
 def main():
@@ -29,21 +21,24 @@ def main():
     log_message("Retraining pipeline started.")
     log_event("PIPELINE_STARTED", {})
 
-    # Step 1: Ingestion
-    rows_pulled = pull_batch()
-    if rows_pulled == 0:
+    # Step 0: Ensure DB schema exists
+    init_database()
+
+    # Step 1: Ingestion (Postgres → DataFrame)
+    df = pull_batch()
+    if df is None or df.empty:
         log_message("Pipeline exiting: No new data.")
         return
 
     # Step 2: Validation
-    valid = validate_buffer()
+    valid = validate_df(df)
     if not valid:
-        log_message("Pipeline exiting: Validation skipped or failed.")
+        log_message("Pipeline exiting: Validation failed.")
         return
 
     # Step 3: Preprocessing
-    X, y = preprocess()
-    if len(X) == 0:
+    X, y = preprocess(df)
+    if X is None or len(X) == 0:
         log_message("Pipeline exiting: No data after preprocessing.")
         return
 
@@ -64,13 +59,6 @@ def main():
 
     # Step 7: Promotion
     promoted = promote_model(run_path, metrics)
-
-    # Step 8: Clear Buffer if configured
-    with open(CONFIG_DIR / "pipeline.yaml", "r") as f:
-        pipeline_config = yaml.safe_load(f)
-
-    if promoted and pipeline_config.get("clear_buffer_on_promotion", False):
-        clear_buffer()
 
     log_message("Retraining pipeline completed.")
     log_event("PIPELINE_COMPLETED", {"promoted": promoted})

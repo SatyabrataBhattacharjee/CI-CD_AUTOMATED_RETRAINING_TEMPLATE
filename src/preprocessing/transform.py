@@ -1,35 +1,26 @@
-import pandas as pd
 import yaml
 from pathlib import Path
+import pandas as pd
 
 from src.logging.event_logger import log_message, log_event
 
 
 BASE_DIR = Path(__file__).resolve().parents[2]
-DATA_DIR = BASE_DIR / "data"
 CONFIG_DIR = BASE_DIR / "config"
-
-BUFFER_PATH = DATA_DIR / "buffer.csv"
 SCHEMA_PATH = CONFIG_DIR / "schema.yaml"
 
 
-def preprocess():
+def preprocess(df: pd.DataFrame):
     """
-    Load buffer and split into X and y based on schema.
-    Always returns DataFrame and Series (possibly empty).
+    Split incoming DataFrame into X and y based on schema.
+    Returns (X, y).
     """
 
-    if not BUFFER_PATH.exists() or BUFFER_PATH.stat().st_size == 0:
-        log_message("Preprocessing skipped: Buffer is empty.")
-        log_event("PREPROCESS_SKIPPED", {"reason": "empty_buffer"})
-        return pd.DataFrame(), pd.Series(dtype=float)
-
-    df = pd.read_csv(BUFFER_PATH)
-
-    if df.empty:
-        log_message("Preprocessing skipped: Buffer dataframe empty.")
+    if df is None or df.empty:
+        log_message("Preprocessing skipped: DataFrame empty.")
         log_event("PREPROCESS_SKIPPED", {"reason": "empty_dataframe"})
         return pd.DataFrame(), pd.Series(dtype=float)
+    df = df.drop(columns=["id", "created_at"], errors="ignore")
 
     # Load schema
     with open(SCHEMA_PATH, "r") as f:
@@ -43,6 +34,9 @@ def preprocess():
 
     if missing_columns:
         raise Exception(f"Preprocessing error: Missing columns {missing_columns}")
+
+    # Drop DB-specific columns like id, created_at if present
+    df = df.copy()
 
     X = df[features]
     y = df[target]

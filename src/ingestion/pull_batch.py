@@ -1,64 +1,70 @@
 import pandas as pd
-import yaml
-from pathlib import Path
-
+from sqlalchemy import text
+from src.ingestion.db import engine
 from src.logging.event_logger import log_message, log_event
 
 
-BASE_DIR = Path(__file__).resolve().parents[2]
-DATA_DIR = BASE_DIR / "data"
-CONFIG_DIR = BASE_DIR / "config"
+MICRO_BATCH_SIZE = 10
 
-LAKEHOUSE_PATH = DATA_DIR / "lakehouse.csv"
-BUFFER_PATH = DATA_DIR / "buffer.csv"
-POINTER_PATH = DATA_DIR / "pointer.txt"
+
+def _get_last_processed_id(conn):
+    result = conn.execute(
+        text("SELECT value FROM pipeline_state WHERE key='last_processed_id'")
+    ).fetchone()
+
+    if result is None:
+        conn.execute(
+            text("INSERT INTO pipeline_state (key, value) VALUES ('last_processed_id', '0')")
+        )
+        return 0
+
+    return int(result[0])
+
+
+def _update_last_processed_id(conn, new_id):
+    conn.execute(
+        text("UPDATE pipeline_state SET value=:val WHERE key='last_processed_id'"),
+        {"val": str(new_id)}
+    )
 
 
 def pull_batch():
     """
-    Pull micro-batch from lakehouse into buffer.
-    Returns number of rows pulled.
+    Pull micro-batch from Postgres.
+    Returns DataFrame or None.
     """
 
-    # Load pipeline config
-    with open(CONFIG_DIR / "pipeline.yaml", "r") as f:
-        pipeline_config = yaml.safe_load(f)
+    with engine.begin() as conn:
 
-    micro_batch_size = pipeline_config["micro_batch_size"]
+        last_id = _get_last_processed_id(conn)
 
-    # Load pointer
-    with open(POINTER_PATH, "r") as f:
-        pointer = int(f.read().strip())
+        query = text("""
+            SELECT * FROM housing_data
+            WHERE id > :last_id
+            ORDER BY id
+            LIMIT :limit
+        """)
 
-    # Load lakehouse
-    lakehouse_df = pd.read_csv(LAKEHOUSE_PATH)
+        df = pd.read_sql(query, conn, params={
+            "last_id": last_id,
+            "limit": MICRO_BATCH_SIZE
+        })
 
-    if pointer >= len(lakehouse_df):
-        log_message("No new data available in lakehouse.")
-        log_event("NO_DATA", {"pointer": pointer})
-        return 0
+        if df.empty:
+            log_message("No new data found in Postgres.")
+            log_event("NO_DATA", {"last_id": last_id})
+            return None
 
-    # Slice batch
-    end_pointer = min(pointer + micro_batch_size, len(lakehouse_df))
-    batch_df = lakehouse_df.iloc[pointer:end_pointer]
+        new_last_id = df["id"].max()
+        _update_last_processed_id(conn, new_last_id)
 
-    # Append to buffer
-    if BUFFER_PATH.exists() and BUFFER_PATH.stat().st_size > 0:
-        batch_df.to_csv(BUFFER_PATH, mode="a", header=False, index=False)
-    else:
-        batch_df.to_csv(BUFFER_PATH, mode="w", header=True, index=False)
+        log_message(f"Ingested {len(df)} rows from Postgres.")
+        log_event("DATA_INGESTED", {
+            "rows": len(df),
+            "previous_last_id": last_id,
+            "new_last_id": new_last_id
+        })
+        df = df.drop(columns=["id", "created_at"], errors="ignore")
 
-    # Update pointer
-    with open(POINTER_PATH, "w") as f:
-        f.write(str(end_pointer))
 
-    rows_pulled = len(batch_df)
-
-    log_message(f"Ingested {rows_pulled} rows into buffer.")
-    log_event("DATA_INGESTED", {
-        "rows_pulled": rows_pulled,
-        "pointer_before": pointer,
-        "pointer_after": end_pointer
-    })
-
-    return rows_pulled
+        return df
