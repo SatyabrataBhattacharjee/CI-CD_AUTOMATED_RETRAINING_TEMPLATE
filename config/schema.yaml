@@ -8,6 +8,7 @@ numerical_features:
   - line_net_amount
   - total_items
   - total_cost
+  - discount_applied
 
 categorical_features:
 
