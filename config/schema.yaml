@@ -1,30 +1,45 @@
-target: price
+dataset: customer_7day_summary
+grain: one_row_per_customer
 
-features:
-  - size
-  - bedrooms
-  - age
-  - location_score
-  - income_index
+
+
+numerical_features:
+  - quantity
+  - line_net_amount
+  - total_items
+  - total_cost
+
+categorical_features:
+
+
+  - loyalty_status
+
+  - payment_method
+
+
 
 dtypes:
-  size: float
-  bedrooms: int
-  age: float
-  location_score: float
-  income_index: float
-  price: float
+  customer_id: int
+  quantity: float
+  line_net_amount: float
+  total_items: float
+  total_cost: float
+  Customer_Name: string
+  Customer_Category: string
+  loyalty_status: string
+  City: string
+  Store_Type: string
+  product_name: string
+  payment_method: string
+  discount_applied: boolean
+  season: string
 
 constraints:
-  size:
+  quantity:
     min: 0
-  bedrooms:
+  line_net_amount:
     min: 0
-  age:
+  total_items:
     min: 0
-  location_score:
-    min: 0
-  income_index:
-    min: 0
-  price:
+  total_cost:
     min: 0
