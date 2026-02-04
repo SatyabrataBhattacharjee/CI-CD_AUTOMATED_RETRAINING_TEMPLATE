@@ -22,10 +22,7 @@ def preprocess(df: pd.DataFrame):
         return pd.DataFrame(), pd.Series(dtype=float)
 
     # Drop non-feature columns if present
-    df = df.drop(
-        columns=["id", "created_at", "customer_id"],
-        errors="ignore"
-    )
+
 
     # -----------------------------
     # Load schema
