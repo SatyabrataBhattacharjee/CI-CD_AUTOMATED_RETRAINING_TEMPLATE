@@ -1,6 +1,6 @@
 dataset: customer_7day_summary
 grain: one_row_per_customer
-
+target: total_cost
 
 
 numerical_features:
