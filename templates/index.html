@@ -2,16 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Premium House Price Predictor</title>
+    <title>Customer 7-Day Spend Predictor</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Poppins', sans-serif;
@@ -29,16 +25,13 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
             padding: 50px 40px;
             border-radius: 20px;
-            width: 420px;
+            width: 460px;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
             text-align: center;
             transition: 0.3s ease;
         }
 
-        h1 {
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
+        h1 { font-weight: 500; margin-bottom: 10px; }
 
         .version {
             font-size: 12px;
@@ -46,12 +39,9 @@
             margin-bottom: 25px;
         }
 
-        form {
-            display: flex;
-            flex-direction: column;
-        }
+        form { display: flex; flex-direction: column; }
 
-        input {
+        input, select {
             padding: 14px;
             margin-bottom: 14px;
             border-radius: 10px;
@@ -63,14 +53,14 @@
             transition: 0.3s ease;
         }
 
-        input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
+        input::placeholder { color: rgba(255, 255, 255, 0.7); }
 
-        input:focus {
+        input:focus, select:focus {
             background: rgba(255, 255, 255, 0.2);
             box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
         }
+
+        select option { color: #111; }
 
         button {
             margin-top: 10px;
@@ -101,23 +91,18 @@
             animation: fadeIn 0.5s ease-in-out;
         }
 
-        .error {
-            background: rgba(255, 0, 0, 0.2);
-        }
+        .error { background: rgba(255, 0, 0, 0.2); }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
     </style>
 </head>
 
 <body>
-
     <div class="card">
-
-        <h1>🏠 Premium Price Predictor</h1>
+        <h1>🧾 7-Day Spend Predictor</h1>
 
         <div class="version">
             {% if version %}
@@ -128,12 +113,23 @@
         </div>
 
         <form action="/predict" method="post">
-            <input type="number" step="any" name="size" placeholder="Size (sqft)" required>
-            <input type="number" name="bedrooms" placeholder="Bedrooms" required>
-            <input type="number" step="any" name="age" placeholder="Age (years)" required>
-            <input type="number" step="any" name="location_score" placeholder="Location Score" required>
-            <input type="number" step="any" name="income_index" placeholder="Income Index" required>
-            <button type="submit">Predict Price</button>
+            <!-- Numerical -->
+            <input type="number" step="any" name="quantity" placeholder="Avg Quantity (e.g., 1.0)" required>
+            <input type="number" step="any" name="line_net_amount" placeholder="Avg Line Net Amount (e.g., 35.5)" required>
+            <input type="number" step="any" name="total_items" placeholder="Avg Total Items (e.g., 3.0)" required>
+
+            <!-- Categorical -->
+            <input type="text" name="loyalty_status" placeholder="Loyalty Status (Platinum/Gold/Silver/Bronze)" required>
+            <input type="text" name="payment_method" placeholder="Payment Method (e.g., Cash)" required>
+
+            <select name="discount_applied" required>
+                <option value="" disabled selected>Discount Applied?</option>
+                <option value="true">True</option>
+                <option value="false">False</option>
+            </select>
+
+
+            <button type="submit">Predict Avg 7-Day Spend</button>
         </form>
 
         {% if prediction %}
@@ -147,8 +143,6 @@
                 </div>
             {% endif %}
         {% endif %}
-
     </div>
-
 </body>
 </html>
